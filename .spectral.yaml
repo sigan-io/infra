@@ -1,0 +1,4 @@
+extends:
+  - spectral:oas
+  - https://unpkg.com/@stoplight/spectral-owasp-ruleset/dist/ruleset.mjs
+  # - https://raw.githubusercontent.com/andylockran/spectral-aws-apigateway-ruleset/main/aws_important_notes.yml

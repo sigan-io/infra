@@ -1,0 +1,3 @@
+[workspace]
+members  = ["functions/account-create", "functions/account-confirm", "scripts"]
+resolver = "2"

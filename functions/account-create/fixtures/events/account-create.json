@@ -1,0 +1,8 @@
+{
+    "body": "{\"email\":\"totoro@totoro.com\",\"password\":\"Totoro@23\"}",
+    "httpMethod": "POST",
+    "path": "/account/create",
+    "headers": {
+        "Content-Type": "application/json"
+    }
+}

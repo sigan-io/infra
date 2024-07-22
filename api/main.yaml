@@ -1,0 +1,256 @@
+openapi: 3.0.1
+info:
+  title: Sigan API
+  description: General API to interact with Sigan services.
+  version: 0.1.0
+  contact:
+    name: Sigan API Support
+    email: support@sigan.io
+    url: https://sigan.io
+servers:
+  - url: https://i3ca2bg9cl.execute-api.us-east-1.amazonaws.com/dev
+tags:
+  - name: account
+    description: Account operations
+components:
+  headers:
+    X-RateLimit-Limit:
+      description: The number of allowed requests in an hour.
+      schema:
+        type: number
+    X-RateLimit-Remaining:
+      description: The number of remaining requests in an hour.
+      schema:
+        type: number
+    Retry-After:
+      description: The number of seconds before the rate limit resets.
+      schema:
+        type: number
+  schemas:
+    SuccessProperty:
+      description: Indicates if the request was successful.
+      type: boolean
+    MessageProperty:
+      type: string
+      format: plaintext
+      maxLength: 140
+    ErrorProperty:
+      type: object
+      properties:
+        code:
+          type: number
+        details:
+          type: string
+          format: plaintext
+          maxLength: 140
+    ResponseSuccess:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/SuccessProperty"
+        message:
+          $ref: "#/components/schemas/MessageProperty"
+        data:
+          type: object
+      required:
+        - success
+        - message
+    ResponseError:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/SuccessProperty"
+        message:
+          $ref: "#/components/schemas/MessageProperty"
+        error:
+          $ref: "#/components/schemas/ErrorProperty"
+      required:
+        - success
+        - message
+        - error
+paths:
+  /account/create:
+    post:
+      operationId: account-create
+      description: Create a new account.
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 10000
+        uri: ${account-create}
+      requestBody:
+        description: Credentials to create the new account.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                password:
+                  type: string
+                  format: password
+                  minLength: 8
+                  maxLength: 64
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/ResponseSuccess"
+                  - type: object
+                    properties:
+                      data:
+                        type: object
+                        properties:
+                          account_id:
+                            type: string
+                            format: uuid
+                            maxLength: 36
+                          account_confirmed:
+                            type: boolean
+                        required:
+                          - account_id
+                          - account_confirmed
+        "400":
+          description: Bad Request
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "401":
+          description: Unauthorized
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "429":
+          description: Too Many Requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            Retry-After:
+              $ref: "#/components/headers/Retry-After"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      security:
+        - {}
+      tags:
+        - account
+  /account/confirm:
+    post:
+      operationId: account-confirm
+      description: Create a new account.
+      x-amazon-apigateway-integration:
+        type: AWS_PROXY
+        httpMethod: POST
+        passthroughBehavior: when_no_match
+        contentHandling: CONVERT_TO_TEXT
+        timeoutInMillis: 10000
+        uri: ${account-confirm}
+      requestBody:
+        description: Credentials to confirm the new account.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  maxLength: 254
+                code:
+                  type: string
+                  format: string
+                  minLength: 6
+                  maxLength: 6
+      responses:
+        "201":
+          description: Created
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseSuccess"
+        "400":
+          description: Bad Request
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "401":
+          description: Unauthorized
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "429":
+          description: Too Many Requests
+          headers:
+            X-RateLimit-Limit:
+              $ref: "#/components/headers/X-RateLimit-Limit"
+            X-RateLimit-Remaining:
+              $ref: "#/components/headers/X-RateLimit-Remaining"
+            Retry-After:
+              $ref: "#/components/headers/Retry-After"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+        "500":
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResponseError"
+      security:
+        - {}
+      tags:
+        - account

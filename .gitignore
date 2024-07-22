@@ -1,0 +1,5 @@
+.terraform
+.env
+env.auto.tfvars
+.DS_Store
+/target
